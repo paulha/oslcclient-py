@@ -37,7 +37,7 @@ query_other = '&_pretty=true'
 
 query_uri = ".json?%s%s%s%s" % ( query_terms, query_properties, query_pagination, query_other)
 
-print "query_uri: [ %s ]" % (query_uri )
+print("query_uri: [ %s ]" % (query_uri ))
 
 query_url = cur_services.get_project_area( project_name )['workitem_url'] + query_uri
 running_query = True
@@ -47,7 +47,7 @@ while running_query:
     req = conn.get( query_url, headers={'accept': 'application/json', 'content-type':'application/json'} )
 
     if req.status_code == 200:
-        print req.text
+        print(req.text)
         page = json.loads( req.text )
     else:
         running_query = False
@@ -57,6 +57,6 @@ while running_query:
     else:
         running_query = False
 
-    print page
+    print(page)
 
     #running_query = False
