@@ -16,5 +16,13 @@
           "password" : "secretpasswordB",
           "email" : "rtc-admin@server"
         }
+     "original": {
+          "url" : "https://rtc.intel.com/dng0001001",
+          "project_name" : "Project Area 2",
+          "project_uuid" : "_BBBDRbxAEeSN39svnuDXXX",
+          "user" : "pfhanchx",
+          "password" : "Platinum2017.4",
+          "email" : "pfhanchx@intel.com"
+        }
   }
 }

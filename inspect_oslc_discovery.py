@@ -26,9 +26,27 @@ sess = conn.get_session()
 
 # OSLC querying
 # https://jazz.net/wiki/bin/view/Main/ResourceOrientedWorkItemAPIv2#Querying_Work_Items
-cur_services = services( conn )
+cur_services = services(conn)
 
 pas = cur_services.get_project_areas()
 
-for key, value in pas.iteritems():
-    print " %s => %s " % ( key, value )
+for key, value in pas.items():
+    print(" %s => %s " % (key, value))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

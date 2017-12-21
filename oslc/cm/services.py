@@ -20,9 +20,11 @@ class services(object):
     def __init__(self, jazz_connection):
         self.oslc_namespaces = {
                        'dc' : 'http://purl.org/dc/terms/',
-                       'jfs_proc' : 'http://jazz.net/xmlns/prod/jazz/process/1.0/',
-                       'oslc_disc': 'http://open-services.net/xmlns/discovery/1.0/',
-                       'rdf': 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'}
+                       #'jfs_proc' : 'http://jazz.net/xmlns/prod/jazz/process/1.0/',
+                       #'oslc_disc': 'http://open-services.net/xmlns/discovery/1.0/',
+                       'rdf': 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
+                       'oslc': 'http://open-services.net/ns/core#'
+            }
 
         self.conn = jazz_connection
         self.sess = jazz_connection.get_session()
@@ -42,32 +44,38 @@ class services(object):
         if not self.projects:
             self.projects = {}
             # http://stackoverflow.com/questions/15622027/parsing-xml-file-gets-unicodeencodeerror-elementtree-valueerror-lxml
-            req = self.sess.get( self.conn.base_url + '/oslc/workitems/catalog.xml',
-                            headers={'accept': 'application/xml', 'content-type':'application/xml'},
+            req = self.sess.get( self.conn.base_url + '/oslc_rm/workitems/catalog',
+                            headers={'accept': 'application/xml', 'OSLC-Core-Version': '2.0',},
                             stream=True  )
             req.raw.decode_content = True
 
             # Get ElementTree ready to parse
             pa_catalog = etree.parse(req.raw)
-            #print etree.tostring( pa_catalog )
+            # print(etree.tostring(pa_catalog, pretty_print=True))
 
             # /oslc_dic:ServiceProviderCatalog/oslc_disc:entry/oslc_dic:ServiceProvider
-            projects = pa_catalog.xpath('/oslc_disc:ServiceProviderCatalog/oslc_disc:entry/oslc_disc:ServiceProvider', namespaces=self.oslc_namespaces)
+            # projects = pa_catalog.xpath('/oslc_disc:ServiceProviderCatalog/oslc_disc:entry/oslc_disc:ServiceProvider', namespaces=self.oslc_namespaces)
+            # projects = pa_catalog.xpath('/oslc:ServiceProviderCatalog/oslc:entry/oslc:serviceProvider', namespaces=self.oslc_namespaces)
+            projects = pa_catalog.xpath('//oslc:ServiceProviderCatalog/oslc:serviceProvider/oslc:ServiceProvider', namespaces=self.oslc_namespaces)
 
             for project in projects:
-                #print etree.tostring( project )
+                # print(f"=====================\n{etree.tostring(project, pretty_print=True)}\n")
                 project_area_name = project.xpath('./dc:title/text()', namespaces=self.oslc_namespaces)[0]
-               # print "title: ", name
+                # print(f"Project name: {project_area_name}")
 
-                services_url = project.xpath('./oslc_disc:services/@rdf:resource',  namespaces=self.oslc_namespaces)[0]
-                #print services_url
-                uuid = re.search('.*/oslc/contexts/(.*)/workitems/.*', services_url).group(1)
+                # services_url = project.xpath('./oslc_disc:services/@rdf:resource',  namespaces=self.oslc_namespaces)[0]
+                services_url = project.xpath('./oslc:details/@rdf:resource', namespaces=self.oslc_namespaces)[0]
+                # print(f"Services url: {services_url}")
+                # note: nothing like this string is found here: "https://rtc.intel.com/dng0001001/process/project-areas/_zQHY0a_4EeekDP1y4xXYPQ"
+                # uuid = re.search('.*/oslc/contexts/(.*)/workitems/.*', services_url).group(1)
+                uuid = re.search('.*/process/project-areas/(.*)', services_url).group(1)
 
-                self.projects[project_area_name] = { 'uuid': uuid,
-                                                     'services_url ' : services_url,
-                                                     'workitem_url' : self.base_url + '/oslc/contexts/'
-                                                         + uuid + '/workitems'
-                                                     }
+                self.projects[project_area_name] = {
+                                                    'uuid': uuid,
+                                                    'services_url ' : services_url,
+                                                    'workitem_url' : self.base_url + '/oslc/contexts/'
+                                                                     + uuid + '/workitems'
+                                                    }
 
         return self.projects
 

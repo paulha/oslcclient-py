@@ -25,7 +25,7 @@ conn = jazz.connection( base_url, rtc_user, rtc_pass )
 sess = conn.get_session()
 
 wi_url = base_url + '/oslc/workitems/.json?oslc_cm.properties=dc:identifier,dc:title,dc:subject'
-wi_url = base_url + '/rrc/rootservices'
+#wi_url = base_url + '/rootservices'
 #wi_url = base_url + '/oslc/workitems/18351.json'
 
 print(wi_url)
@@ -33,11 +33,11 @@ req = sess.get( wi_url )
 print( req.text )
 print("======")
 
-print(base_url + "/rrc/oslc_rm/catalog")
-req2 = sess.get(base_url + "/rrc/oslc_rm/catalog")
+print(base_url + "/oslc_rm/catalog")
+req2 = sess.get(base_url + "/oslc_rm/catalog")
 print(req2.text)
 print("======")
 
-print("https://rtc-sbox.intel.com/rrc/process/project-areas/_7frmMV-yEeeSM-XDf2vh2g")
-print(sess.get("https://rtc-sbox.intel.com/rrc/process/project-areas/_7frmMV-yEeeSM-XDf2vh2g").text)
+print("https://rtc.intel.com/dng0001001/oslc_rm/_zQHY0a_4EeekDP1y4xXYPQ/services.xml")
+print(sess.get("https://rtc.intel.com/dng0001001/oslc_rm/_zQHY0a_4EeekDP1y4xXYPQ/services.xml").text)
 print("======")

@@ -4,6 +4,7 @@
 #
 import json
 import urllib
+import urllib.parse
 import jazz
 from oslc.cm.services import services
 
@@ -28,32 +29,36 @@ cur_services = services( conn )
 
 # OSLC querying
 # https://jazz.net/wiki/bin/view/Main/ResourceOrientedWorkItemAPIv2#Querying_Work_Items
-query_url = cur_services.get_project_area( project_name )['workitem_url']
+query_url = cur_services.get_project_area(project_name)['workitem_url']
 
-query_terms ='oslc_cm.query=' + urllib.quote( 'rtc_cm:state!="{closed}" and dc:modified<"{-37M}"  ' )
-query_properties = '&oslc_cm.properties=' + urllib.quote( 'dc:title,dc:identifier,rtc_cm:state,dc:modified' )
+# query_terms ='oslc_cm.query=' + urllib.parse.quote( 'rtc_cm:state!="{closed}" and dc:modified<"{-37M}"  ' )
+query_terms ='oslc_cm.query=' + urllib.parse.quote('oslc.select=*  ')
+query_properties = '&oslc_cm.properties=' + urllib.parse.quote( 'dc:title,dc:identifier,rtc_cm:state,dc:modified' )
 query_pagination = '&oslc_cm.pageSize=3'
 query_other = '&_pretty=true'
 
 query_uri = ".json?%s%s%s%s" % ( query_terms, query_properties, query_pagination, query_other)
 
-print("query_uri: [ %s ]" % (query_uri ))
+# print("query_uri: [ %s ]" % (query_uri ))
 
 query_url = cur_services.get_project_area( project_name )['workitem_url'] + query_uri
 running_query = True
 
 # Paging through results
+page={}
 while running_query:
-    req = conn.get( query_url, headers={'accept': 'application/json', 'content-type':'application/json'} )
+    print(f"Query: '{query_url}'")
+    req = conn.get( query_url, headers={'accept': 'application/json', 'content-type': 'application/json'})
+    print(f"Status: {req.status_code}")
 
     if req.status_code == 200:
         print(req.text)
-        page = json.loads( req.text )
+        page = json.loads(req.text)
     else:
         running_query = False
 
     if 'oslc_cm:next' in page:
-        query_url = page[ 'oslc_cm:next' ]
+        query_url = page['oslc_cm:next']
     else:
         running_query = False
 
